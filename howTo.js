@@ -31,7 +31,7 @@ app.use(bodyParser.json());
 app.use(express.static(__dirname + '/public'));
 
 /* Application Port */
-app.set('port', 3071);
+app.set('port', 3101);
 
 /* Query Request Handing Function */
 function pageRequest(query){
