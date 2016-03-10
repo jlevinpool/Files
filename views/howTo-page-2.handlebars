@@ -1,0 +1,31 @@
+<!-- Page Header -->
+<div class="container">
+	<div class="jumbotron">
+		<h1>Setup</h1>
+		<p>Getting the tank rolling</p>
+	</div>
+</div>
+<!-- Page Content -->
+<p>In this section  you will be shown how to obtain an application ID (similar to an API key) from Wargaming.net. This is required to perform every API call. The first step is to go to <a href="https://na.wargaming.net/developers/">Wargaming.net’s Developer Room page</a>. Once the page is loaded, click on the [Add Application] button to start the process.</p>
+
+<img src="/images/developer_room.png" alt="Wargaming.net Developer Page"></img>
+
+<p>You will automatically be redirected to a login page where you will need to either enter your existing wargaming.net account information, log iin using one of several social media platforms, or create an account if you do not have one. The link should direct you to a screen similar to the one shown below.</p>
+
+<img src="/images/login_screen.png" alt="Wargaming.net Login Screen"></img>
+
+<p>Once signed in, you will be returned to the Developer Room page, where you will need to once again click on the [Add Application] button. This time, you will be directed to a page containing all of your applications (which should be empty).</p>
+
+<img src="/images/my_applications_initial.png" alt="My Application List - Initial"></img>
+
+<p>Clicking again on a button labeled [Add Application] will expand the application area to display a form for adding your application.</p>
+
+<img src="/images/my_applications_stand-alone_empty.png" alt="My Application List - Stand-Alone"></img>
+
+<p>There are currently two different options for application type: stand-alone and server. The main difference is that server applications allow for more requests per second, but are locked down to requests from specific IP addresses. For the purposes of this guide, we are going to use a stand-alone application. With the application type “dropdown” set for stand-alone, enter an application name and click the [Add Application] button. </p>
+
+<p>Hopefully everything will work and your application should be added to the table with an associated Application ID.</p>
+
+<img src="/images/my_applications_application_ID.png" alt="My Application List - ID"></img>
+
+<p>Remember that this application ID is the same as an API key and should be kept secure. Now that we have an application ID, let’s move on to the making our first API call.</p>

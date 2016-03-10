@@ -1,0 +1,94 @@
+<!-- Page Header -->
+<div class="container">
+	<div class="jumbotron">
+		<h1>Tankopedia (Part 1)</h1>
+		<p>Time to look at some tanks.</p>
+	</div>
+</div>
+<!-- Page Content -->
+<p>It turns out tank profiles are considered “public” information, and the search for this information is a bit tricky. If you are looking to find information on a tank you are required to provide a <code>&lt;tank_id&gt;</code> parameter. This causes a bit of an issue if you start off not knowing this parameter because currently there is not an API that takes a tank name and searches for its <code>&lt;tank_id&gt;</code>. You could shoot off a request to get the list of all vehicles in the game using the following API:</p>
+
+<pre class="prettyprint">
+request({"url":"https:// api.worldoftanks.com/wot/encyclopedia/vehicles/",
+		"method":"POST",
+		"headers":{"Content-Type":"application/x-www-form-urlencoded"},
+		"body":"application_id="+credentials.WG_Key}, 
+		function(err, response, body){ … });
+</pre>
+
+<p>A request of that kind would produce a response that takes a long time to complete (a simple test took 25 seconds) and creates a huge response that would need to be sorted through (an excessive number of pages of data). Luckily, the API enables adding different filters to reduce the overall size. The first is to filter by vehicle tier (how the game ranks the vehicles) and by nation. The current nations and their associated abbreviations are shown below:</p>
+
+<div class="container">
+	<table class="table table-bordered">
+		<thead>
+			<tr>
+				<th>Nation</th>
+				<th>Abbreviation</th>
+			</tr>	
+		</thead>
+		<tbody>
+			<tr>
+				<td>China</td>
+				<td>china</td>
+			</tr>
+			<tr>
+				<td>Czechoslovakia</td>
+				<td>czech</td>
+			</tr>
+			<tr>
+				<td>France</td>
+				<td>france</td>
+			</tr>
+			<tr>
+				<td>Germany</td>
+				<td>germany</td>
+			</tr>
+			<tr>
+				<td>Japan</td>
+				<td>japan</td>
+			</tr>
+			<tr>
+				<td>United Kingdom (U.K)</td>
+				<td>uk</td>
+			</tr>
+			<tr>
+				<td>United States of America (U.S.A)</td>
+				<td>usa</td>
+			</tr>
+			<tr>
+				<td>Union of Soviet Socialist Republics (U.S.S.R)</td>
+				<td>ussr</td>
+			</tr>
+		</tbody>
+	</table>
+</div>
+
+<p>Now that we have the nations all sorted out, let’s go find a particular tank. For this example we will be looking for the <strong>British tier 6 Cromwell</strong> tank. So, building our request body adding the input parameters for nation and tier (and requesting only name and ID):</p>
+
+<pre class="prettyprint">
+request({"url":"https://api.worldoftanks.com/wot/encyclopedia/vehicles/",
+		"method":"POST",
+		"headers":{"Content-Type":"application/x-www-form-urlencoded"},
+		"body":"application_id="+credentials.WG_Key
+		+"&fields=name,tank_id&nation=uk&tier=6"},
+		function(err, response, body){ … });
+</pre>
+
+<p>And here is the response:</p>
+
+<pre class="prettyprint">
+{ status: 'ok',
+  meta: { count: 9 },
+  data:
+   { '1105': { name: 'Cromwell', tank_id: 1105 },
+     '3665': { name: 'Sherman Firefly', tank_id: 3665 },
+     '4689': { name: 'Churchill VII', tank_id: 4689 },
+     '9553': { name: 'AT 8', tank_id: 9553 },
+     '9809': { name: 'Churchill Gun Carrier', tank_id: 9809 },
+     '11857': { name: 'FV304', tank_id: 11857 },
+     '14417': { name: 'Achilles', tank_id: 14417 },
+     '53841': { name: 'TOG II*', tank_id: 53841 },
+     '55889': { name: 'Cromwell B', tank_id: 55889 } } }
+</pre>
+
+<p>Inspecting the results we notice two things. The first is that the data object name is identical to the tank_id and secondly, there are two separate Cromwell tanks. Not spending too much time debating which tank to look at, we’re going to go ahead with the standard Cromwell tank <code>&lt;tank_id=1105&gt;</code> in the next section.</p>

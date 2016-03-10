@@ -1,0 +1,42 @@
+<!-- Page Header -->
+<div class="container">
+	<div class="jumbotron">
+		<h1>Finding a Player’s Account ID</h1>
+		<p>Let’s find someone!</p>
+	</div>
+</div>
+<!-- Page Content -->
+<p>One of the first steps to finding information on a player is to get the Account ID associated with a player’s nickname. The <a href="https://na.wargaming.net/developers/api_reference/wot/account/list/">documentation</a> provided on Wargaming.net’s Developer site provides some information about how the calls can be made. </p>
+
+<img src="/images/API_accounts_players_top.png" alt="Player Account API Referance"></img>
+
+<p>One of the first things that you might have noticed is that you are able to call the API using either a GET or POST call (and can also do this over standard http or secure http). While it is sometimes easier to setup requests using the GET, utilizing POST calls will allow us to maintain control of our application ID and later, the access tokens required by OpenID.</p>
+
+<p>Before making the call, we need to setup the general call structure. Wargaming’s API library utilizes URL encoded form data (application/x-www-form-urlencoded) which is almost identical to the query string that is used for GET requests. There are a few differences, mainly being that spaces are replaced with “+” instead of “%20”. We will also be conducting all of our API calls using secured http.</p>
+
+<p>Each API call has an associated list of input parameters, response parameters, and error codes are shown on the associated API reference pages and will not be discussed here in great detail. Instead, only the pertinent fields are mentioned (most of the default values are what we would use anyway).</p>
+
+<p>The input fields that we are interested in are <code>&lt;application_id&gt;</code> and <code>&lt;search&gt;</code>. The <code>&lt;application_id&gt;</code> was discussed in the previous section and is simply the ID of the application making the API call. The <code>&lt;search&gt;</code> field allows us to hunt for a player by their in-game nickname and, for the default search type, requires at least 3 characters (returning a default maximum number of 100 entries). Like any search, the more of the name you know the better chance you have of finding the unique player. For the purposes of this guide, we will use my player name “ZeroTorch”.</p>
+
+<p>Below is the basic POST call structure that we will be using throughout this guide:</p>
+
+<pre class="prettyprint">
+request({"url":"https://api.worldoftanks.com/wot/account/list/",
+	"method":"POST",
+	"headers":{"Content-Type":"application/x-www-form-urlencoded"},
+	"body":"application_id="+credentials.WG_Key+"&search="+playerName}, 
+	function(err, response, body){ … });
+</pre>
+
+<p>Where <code>&lt;credentials.WG_Key&gt;</code> is the application ID and <code>&lt;playerName&gt;</code> is the name of the desired player we will be getting information about. If the request was successful, the body variable will contain something similar to:</p>
+
+<pre class="prettyprint">
+{"status":"ok","meta":{"count":1},
+"data":[{"nickname":"ZeroTorch","account_id":1002180483}]}
+</pre>
+
+<p>The sections that we are interested in are “meta”, which contains a count key and associated number of players returned (since our search is rather specific, we only returned a single option) and “data” which contains the player name in the “nickname” field and the associated account ID. If the player name had not been as specific (or if there were players with names such as “ZeroTorchSucks”), a list of up to 100 players would be returned.</p>
+
+<p>To counter this, the addition of <code>&lt;type=exact&gt;</code> will change the search type to only return players that exactly match the player name from the search query. The response format is the same either way.</p>
+
+<p>Now that we know how to search for the all-important account ID information, we can start searching for more specific player information.</p>

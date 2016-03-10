@@ -1,0 +1,73 @@
+<!-- Page Header -->
+<div class="container">
+	<div class="jumbotron">
+		<h1>Using the Account ID</h1>
+		<p>Let’s learn about a player!</p>
+	</div>
+</div>
+<!-- Page Content -->
+<p>Now that we have obtained the account ID for a player, let’s see what information we can find out about them! The general API call for this is:</p>
+
+<pre class="prettyprint">
+request({"url":"https://api.worldoftanks.com/wot/account/info/",
+	"method":"POST",
+	"headers":{"Content-Type":"application/x-www-form-urlencoded"},
+	"body":"application_id="+credentials.WG_Key+"&account_id="+playerID}, 
+	function(err, response, body){ … });
+</pre>
+
+<p>The only required parameters for this call are the application ID and the previously found account ID. Sending this request as is, will return a response body with about a page worth of unformatted data. Below is the results run through the <code>&lt;JSON.parse&gt;</code> function:</p>
+
+<pre class="prettyprint">
+{ status: 'ok',
+  meta: { count: 1 },
+  data:
+   { '1002180483':
+      { client_language: 'en',
+        last_battle_time: 1452054748,
+        account_id: 1002180483,
+        created_at: 1333607629,
+        updated_at: 1452570931,
+        private: null,
+        ban_time: null,
+        global_rating: 5959,
+        clan_id: null,
+        statistics: [Object],
+        nickname: 'ZeroTorch',
+        ban_info: null,
+        logout_at: 1452570927 } } }
+</pre>
+
+<p>The first thing that you will want to note is that this is the account that we were looking for, verified by the matching account ID and nickname from before. There is also an interesting JavaScript object called <code>&lt;statistics&gt;</code> which contains what it sounds like … tons of statistics on the targeted player. Let’s dive into the statistics rabbit hole a bit.</p>
+
+<p>The Wargaming documentation actually does a good job listing all of the different returned fields on the 23 pages (I’m being completely serious, it is incredibly long) for this particular API. I’m not going to bother listing out every possible option, but I will show a quick example of how to grab a few interesting ones.</p>
+
+<p>The statistics fields I’ll be grabbing for this particular example are:</p>
+
+<ul>
+	<li><code>&lt;statistics.trees_cut&gt;</code> – Number of trees knocked down</li>
+	<li><code>&lt;statistics.all.battles&gt;</code> – Number of battles fought</li>
+	<li><code>&lt;statistics.all.hits_percents&gt;</code> – Hit ratio</li>
+</ul>
+
+<p>So if we wanted to filter our original query to include only the fields mentioned above (and the player nickname for reference) we would rebuild the request to:</p>
+
+<pre class="prettyprint">
+request({"url":"https://api.worldoftanks.com/wot/account/info/",
+	"method":"POST",
+	"headers":{"Content-Type":"application/x-www-form-urlencoded"},
+	"body":"application_id="+credentials.WG_Key
+		+"&account_id="+playerID
+		+"&fields=nickname,statistics.trees_cut,statistics.all.battles,statistics.all.hits_percents"},
+	function(err, response, body){ … });
+</pre>
+
+<p>And we get back:</p>
+
+<pre class="prettyprint">
+{"status":"ok","meta":{"count":1},"data":{"1002180483":{"statistics":{"all":{"hits_percents":65,"battles":7684},"trees_cut":3279},"nickname":"ZeroTorch"}}}
+</pre>
+
+<p>Finally, we have some semi-useful information. At the time of making this guide I had a hit percentage of 65%, participated in 7,684 battles, and had knocked down a total of 3,279 trees. This method would work to find pretty much any “public” data on a player.</p>
+
+<p>While this is all interesting information about trees and such, what if I wanted to know “private” or player account specific information such as how many credits I currently had or what vehicles were in my garage? It turns out that type of search would require entering the realm of OpenID, which is way beyond the scope of this guide. So instead, let’s look at what else we can find without using OpenID.</p>

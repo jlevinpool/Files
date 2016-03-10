@@ -1,0 +1,128 @@
+<!-- Page Header -->
+<div class="container">
+	<div class="jumbotron">
+		<h1>Tankopedia (Part 2)</h1>
+		<p>Time to look closet at a tank.</p>
+	</div>
+</div>
+<!-- Page Content -->
+<p>In the previous section, we had decided to investigate the standard Cromwell tank <code>&lt;tank_id=1105&gt;</code>. Since we already know the <code>&lt;tank_id&gt;</code>, we no longer need the nation and tier filter parameters. We can now rebuild the original query to include only the desired tank:</p>
+
+<pre class="prettyprint">
+request({"url":"https://api.worldoftanks.com/wot/encyclopedia/vehicles/",
+		"method":"POST",
+		"headers":{"Content-Type":"application/x-www-form-urlencoded"},
+		"body":"application_id="+credentials.WG_Key
+		+"&tank_id=1105"},
+		function(err, response, body){ … });
+</pre>
+
+<p>And the results now are:</p>
+
+<pre class="prettyprint">
+{ status: 'ok',
+  meta: { count: 1 },
+  data:
+   { '1105':
+      { radios: [Object],
+        is_premium: false,
+        tag: 'GB21_Cromwell',
+        images: [Object],
+        tank_id: 1105,
+        suspensions: [Object],
+        provisions: [Object],
+        engines: [Object],
+        crew: [Object],
+        type: 'mediumTank',
+        guns: [Object],
+        description: 'The Cromwell was developed in 1941–1942 by BRC&W. A total of 1,070 vehicles were mass-produced from late 1943 through 1945. They were extensively used by the British Army in the Northwest Europe Campaign of 1944–1945.',
+        short_name: 'Cromwell',
+        is_premium_igr: false,
+        next_tanks: [Object],
+        modules_tree: [Object],
+        nation: 'uk',
+        tier: 6,
+        prices_xp: [Object],
+        is_gift: false,
+        name: 'Cromwell',
+        price_gold: 0,
+        price_credit: 900000,
+        default_profile: [Object],
+        turrets: [Object] } } }
+</pre>
+
+<p>The above response is after JSON parsing the body and a few of the returned parameters are truncated into objects. Contained within a lot of these objects are more identifiers that can be used with the <a href="api.worldoftanks.com/wot/encyclopedia/vehicleprofile">vehicle characteristics API</a> to pull additional information about the components on the tank.</p>
+
+<p>So, what if we were looking to find out how much horsepower the Cromwell Tank has. Expanding the engine’s object, we can see that it contains three separate numeric value (corresponding to engine ID parameters): 6229, 3413, and 3157. Unfortunately, the vehicle characteristics API does not support sending three engine parameters as a list.  There is a deprecated AI just for engines which does accept a list, but since this method might be removed at any given time, I will not be covering it.</p>
+
+<p>The vehicle characteristic API is set up exactly the same as all of the previous APIs and has mandatory input parameters of <code>&lt;application_id&gt;</code> and <code>&lt;tank_id&gt;</code>. Since we are only looking for the information regarding the engines, we will add <code>&lt;fields=engine&gt;</code> and loop through the engine IDs using the input parameter <code>&gt;engine_id&lt;</code>. We get the following data responses (for the first <code>&lt;engine_id=6229&gt;</code>):</p>
+
+<pre class="prettyprint">
+{
+    "status": "ok",
+    "meta": {
+        "count": 1
+    },
+    "data": {
+        "1105": {
+            "engine": {
+                "name": "Nuffield Liberty Mk. V",
+                "power": 410,
+                "weight": 383,
+                "tag": "Nuffield_liberty_MKV",
+                "fire_chance": 0.2,
+                "tier": 5
+            }
+        }
+    }
+}
+</pre>
+
+<p>Combining this with running the query on the other engine ID’s can be used to produce a comparison table between the different Cromwell engines (omitting the tag parameter):</p>
+
+<div class="container">
+	<table class="table table-bordered">
+		<thead>
+			<tr>
+				<th>Engine ID</th>
+				<td>6229</td>
+				<td>3157</td>
+				<td>3413</td>
+			</tr>
+		</thead>
+		<tbody>
+			<tr>
+				<th>Name</th>
+				<td>Nuffield Liberty MK. V</td>
+				<td>Rolls-Royce Meteor</td>
+				<td>Rolls-Royce Meteor Mk. IVB</td>
+			</tr>
+			<tr>
+				<th>Power, hp</th>
+				<td>410</td>
+				<td>600</td>
+				<td>650</td>
+			</tr>
+			<tr>
+				<th>Weight, kg</th>
+				<td>383</td>
+				<td>744</td>
+				<td>744</td>
+			</tr>
+			<tr>
+				<th>Chance of Fire</th>
+				<td>0.2</td>
+				<td>0.2</td>
+				<td>0.2</td>
+			</tr>
+			<tr>
+				<th>Tier</th>
+				<td>5</td>
+				<td>5</td>
+				<td>5</td>
+			</tr>
+		</tbody>
+	</table>
+</div>
+
+<p>Hopefully by now you have developed an understanding of the general structure of the Wargaming’s API calls. Something to note is that there is a lot of data that gets queried and returned for the API calls and the call times will start to add up if you are not careful.</p>
